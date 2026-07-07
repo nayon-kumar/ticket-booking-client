@@ -1,21 +1,58 @@
 "use client";
 
 import Link from "next/link";
-
 import {
   Card,
   CardHeader,
   CardContent as CardBody,
-  Input,
   Button,
-  Label,
   Form,
 } from "@heroui/react";
 import { FaEnvelope, FaLock, FaGoogle } from "react-icons/fa";
 import { useForm } from "react-hook-form";
 import { authClient } from "@/lib/auth-client";
 import { redirect } from "next/navigation";
+import toast from "react-hot-toast";
 import Logo from "@/components/shared/Logo";
+
+// Custom Input wrapper that doesn't pass invalid props to DOM
+const CustomInput = ({
+  label,
+  errorMessage,
+  isInvalid,
+  startContent,
+  labelPlacement,
+  className,
+  ...props
+}) => {
+  return (
+    <div className="flex flex-col gap-2 w-full">
+      {label && (
+        <label
+          htmlFor={props.id}
+          className="text-sm font-semibold text-slate-300"
+        >
+          {label}
+        </label>
+      )}
+      <div className="relative">
+        {startContent && (
+          <div className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-sm z-10">
+            {startContent}
+          </div>
+        )}
+        <input
+          {...props}
+          className={`w-full bg-slate-900/50 border rounded-lg px-4 py-3 text-white placeholder-slate-400 outline-none transition-all
+            ${startContent ? "pl-10" : ""} 
+            ${isInvalid ? "border-red-500" : "border-white/10 hover:border-pink-500/50 focus:border-pink-500"}
+            ${className || ""}`}
+        />
+      </div>
+      {errorMessage && <p className="text-red-500 text-sm">{errorMessage}</p>}
+    </div>
+  );
+};
 
 const LoginPage = () => {
   const {
@@ -34,11 +71,12 @@ const LoginPage = () => {
     console.log(signInData, signInError);
 
     if (signInError) {
-      toast.error("Registration not succeed...");
+      toast.error("Login failed. Please check your credentials.");
     } else {
       redirect("/");
     }
   };
+
   return (
     <div className="mx-auto">
       <Card className="w-full max-w-md border border-white/5 bg-slate-950/70 backdrop-blur-xl shadow-2xl p-4">
@@ -53,25 +91,26 @@ const LoginPage = () => {
         </CardHeader>
         <CardBody className="gap-4">
           <Form onSubmit={handleSubmit(onSubmit)} className="space-y-4 w-full">
-            <Label htmlFor="email">Email Address</Label>
-            <Input
-              {...register("email", { required: "email is Required" })}
+            <CustomInput
+              {...register("email", { required: "Email is Required" })}
               id="email"
+              label="Email Address"
               placeholder="john@example.com"
               type="email"
-              labelPlacement="outside"
               startContent={<FaEnvelope className="text-slate-400 text-sm" />}
-              className="w-full bg-slate-900/50 border-white/10 hover:border-pink-500/50 focus-within:!border-pink-500"
+              errorMessage={errors.email?.message}
+              isInvalid={!!errors.email}
             />
-            <Label htmlFor="password">Password</Label>
-            <Input
+
+            <CustomInput
               {...register("password", { required: "Password is Required" })}
               id="password"
+              label="Password"
               placeholder="••••••••"
               type="password"
-              labelPlacement="outside"
               startContent={<FaLock className="text-slate-400 text-sm" />}
-              className="w-full bg-slate-900/50 border-white/10 hover:border-pink-500/50 focus-within:!border-pink-500"
+              errorMessage={errors.password?.message}
+              isInvalid={!!errors.password}
             />
 
             <Button

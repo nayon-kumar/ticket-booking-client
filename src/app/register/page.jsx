@@ -63,8 +63,6 @@ export default function RegisterPage() {
   } = useForm();
 
   const onSubmit = async (data) => {
-    console.log(data);
-
     const imageFile = data.image[0];
     const imageUrl = await uploadImage(imageFile);
 
