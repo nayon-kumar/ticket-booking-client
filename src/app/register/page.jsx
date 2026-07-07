@@ -1,22 +1,12 @@
 "use client";
 
 import Link from "next/link";
-
 import {
   Card,
   CardHeader,
   CardContent as CardBody,
-  Input,
   Button,
-  Label,
   Form,
-  Select,
-  SelectTrigger,
-  SelectValue,
-  SelectIndicator,
-  SelectPopover,
-  ListBox,
-  ListBoxItem,
 } from "@heroui/react";
 import { FaUser, FaEnvelope, FaLock, FaImage, FaGoogle } from "react-icons/fa";
 import { useForm } from "react-hook-form";
@@ -26,6 +16,45 @@ import { uploadImage } from "@/utils/uploadImage";
 import { redirect } from "next/navigation";
 import Logo from "@/components/shared/Logo";
 
+// Custom Input wrapper that doesn't pass invalid props to DOM
+const CustomInput = ({
+  label,
+  errorMessage,
+  isInvalid,
+  startContent,
+  labelPlacement,
+  className,
+  ...props
+}) => {
+  return (
+    <div className="flex flex-col gap-2 w-full">
+      {label && (
+        <label
+          htmlFor={props.id}
+          className="text-sm font-semibold text-slate-300"
+        >
+          {label}
+        </label>
+      )}
+      <div className="relative">
+        {startContent && (
+          <div className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-sm z-10">
+            {startContent}
+          </div>
+        )}
+        <input
+          {...props}
+          className={`w-full bg-slate-900/50 border rounded-lg px-4 py-3 text-white placeholder-slate-400 outline-none transition-all
+            ${startContent ? "pl-10" : ""} 
+            ${isInvalid ? "border-red-500" : "border-white/10 hover:border-pink-500/50 focus:border-pink-500"}
+            ${className || ""}`}
+        />
+      </div>
+      {errorMessage && <p className="text-red-500 text-sm">{errorMessage}</p>}
+    </div>
+  );
+};
+
 export default function RegisterPage() {
   const {
     register,
@@ -34,12 +63,10 @@ export default function RegisterPage() {
   } = useForm();
 
   const onSubmit = async (data) => {
-    // Upload image to imgbb
     console.log(data);
 
     const imageFile = data.image[0];
     const imageUrl = await uploadImage(imageFile);
-    // console.log(imageUrl);
 
     const { data: signUpData, error: signUpError } =
       await authClient.signUp.email({
@@ -50,15 +77,12 @@ export default function RegisterPage() {
         role: data.role,
       });
 
-    // console.log(signUpData, signUpError);
-
     if (signUpError) {
       toast.error("Registration not succeed...");
     } else {
       redirect("/");
     }
   };
-  console.log(errors);
 
   return (
     <div>
@@ -74,86 +98,68 @@ export default function RegisterPage() {
         </CardHeader>
         <CardBody className="gap-4">
           <Form onSubmit={handleSubmit(onSubmit)} className="space-y-4 w-full">
-            <Label htmlFor="name">Full Name</Label>
-
-            <Input
+            <CustomInput
               {...register("name", { required: "Name is Required" })}
               id="name"
+              label="Full Name"
               placeholder="John Doe"
-              labelPlacement="outside"
               startContent={<FaUser className="text-slate-400 text-sm" />}
-              className="w-full bg-slate-900/50 border-white/10 hover:border-pink-500/50 focus-within:!border-pink-500"
+              errorMessage={errors.name?.message}
+              isInvalid={!!errors.name}
             />
-            {errors.name && (
-              <p className="text-red-500">{errors.name.message}</p>
-            )}
-            <Label htmlFor="email">Email Address</Label>
-            <Input
+
+            <CustomInput
               {...register("email", { required: "Email is Required" })}
               id="email"
+              label="Email Address"
               placeholder="john@example.com"
               type="email"
-              labelPlacement="outside"
               startContent={<FaEnvelope className="text-slate-400 text-sm" />}
-              className="w-full bg-slate-900/50 border-white/10 hover:border-pink-500/50 focus-within:!border-pink-500"
+              errorMessage={errors.email?.message}
+              isInvalid={!!errors.email}
             />
-            {errors.email && (
-              <p className="text-red-500">{errors.email.message}</p>
-            )}
-            <Label htmlFor="image">Profile Image URL</Label>
 
-            <Input
-              {...register("image", { required: "image is Required" })}
+            <CustomInput
+              {...register("image", { required: "Image is Required" })}
               type="file"
               accept="image/*"
               id="image"
-              placeholder="https://example.com/avatar.jpg"
-              labelPlacement="outside"
+              label="Profile Image"
               startContent={<FaImage className="text-slate-400 text-sm" />}
-              className="w-full bg-slate-900/50 border-white/10 hover:border-pink-500/50 focus-within:!border-pink-500"
+              errorMessage={errors.image?.message}
+              isInvalid={!!errors.image}
             />
-            {errors.image && (
-              <p className="text-red-500">{errors.image.message}</p>
-            )}
 
-            <Label htmlFor="password">Password</Label>
-            <Input
+            <CustomInput
               {...register("password", {
                 required: "Password is required",
-                // pattern: {
-                //     value: /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{6,}$/,
-                //     message:
-                //         "Password must be at least 6 characters and contain at least one uppercase letter, one lowercase letter, and one number",
-                // },
               })}
               id="password"
+              label="Password"
               placeholder="••••••••"
               type="password"
-              labelPlacement="outside"
               startContent={<FaLock className="text-slate-400 text-sm" />}
-              className="w-full bg-slate-900/50 border-white/10 hover:border-pink-500/50 focus-within:!border-pink-500"
+              errorMessage={errors.password?.message}
+              isInvalid={!!errors.password}
             />
-            {errors.password && (
-              <p className="text-red-500">{errors.password.message}</p>
-            )}
 
             <div className="flex flex-col gap-2 w-full">
-              <Label
+              <label
                 htmlFor="role"
                 className="text-sm font-semibold text-slate-300"
               >
                 Select Role
-              </Label>
+              </label>
               <select
                 id="role"
                 {...register("role", { required: "Role is required" })}
-                className="w-full bg-slate-900/50 border-white/10 hover:border-pink-500/50 focus-within:!border-pink-500 p-3"
+                className="w-full bg-slate-900/50 border border-white/10 hover:border-pink-500/50 focus-within:!border-pink-500 p-3 rounded-lg text-white outline-none transition-all"
               >
                 <option value="attendee">Attendee</option>
                 <option value="organizer">Organizer</option>
               </select>
               {errors.role && (
-                <p className="text-red-500">{errors.role.message}</p>
+                <p className="text-red-500 text-sm">{errors.role.message}</p>
               )}
             </div>
 
