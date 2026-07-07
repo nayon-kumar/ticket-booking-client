@@ -19,12 +19,12 @@ import {
   ListBoxItem,
 } from "@heroui/react";
 import { FaUser, FaEnvelope, FaLock, FaImage, FaGoogle } from "react-icons/fa";
-import Logo from "@/components/Logo";
 import { useForm } from "react-hook-form";
 import { authClient } from "@/lib/auth-client";
 import toast from "react-hot-toast";
 import { uploadImage } from "@/utils/uploadImage";
 import { redirect } from "next/navigation";
+import Logo from "@/components/shared/Logo";
 
 export default function RegisterPage() {
   const {
