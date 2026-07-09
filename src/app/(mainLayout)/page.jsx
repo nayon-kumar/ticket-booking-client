@@ -3,7 +3,7 @@ import Statistics from "@/components/home/Statistics";
 import Testimonials from "@/components/home/Testimonials";
 import WhyChoose from "@/components/home/WhyChoose";
 
-export default function Home() {
+export default async function HomePage() {
   const stats = {
     totalEvents: 30,
     totalAttendees: 4000,
@@ -11,12 +11,10 @@ export default function Home() {
   };
   return (
     <div>
-      <main>
-        <Hero />
-        <WhyChoose />
-        <Statistics stats={stats} />
-        <Testimonials />
-      </main>
+      <Hero />
+      <WhyChoose />
+      <Statistics stats={stats} />
+      <Testimonials />
     </div>
   );
 }
