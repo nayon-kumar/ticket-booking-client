@@ -1,5 +1,5 @@
 "use client";
-import DashboardHeading from "@/components/DashboardHeading";
+import DashboardHeading from "@/components/dashboard/DashboardHeading";
 import { addOrganization, updateOrg } from "@/lib/api/organizations/action";
 import { myOrganization } from "@/lib/api/organizations/data";
 import { useSession } from "@/lib/auth-client";
